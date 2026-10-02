@@ -2,7 +2,7 @@
 fetch.py
 --------
 Scarica gli articoli pubblicati nelle ultime 24 ore dai feed RSS
-elencati in config/sources.yaml. Usato solo per la sezione "News" (8/8).
+elencati in config/sources.yaml. Usato solo per la sezione "News".
 """
 
 import feedparser
@@ -18,9 +18,11 @@ def load_sources(config_path="config/sources.yaml"):
 
 def fetch_recent_articles(sources, max_articles_per_day=10, hours=24):
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
-    articles = []
+    articles_by_source = []
 
     for source in sources:
+        source_articles = []
+        articles_by_source.append(source_articles)
         try:
             feed = feedparser.parse(source["url"])
 
@@ -43,7 +45,7 @@ def fetch_recent_articles(sources, max_articles_per_day=10, hours=24):
                 if published is None or published < cutoff:
                     continue
 
-                articles.append({
+                source_articles.append({
                     "title": entry.get("title", "Senza titolo"),
                     "link": entry.get("link", ""),
                     "summary": entry.get("summary", "")[:500],
@@ -59,7 +61,22 @@ def fetch_recent_articles(sources, max_articles_per_day=10, hours=24):
             )
             continue
 
-    return articles[:max_articles_per_day]
+    return _interleave(articles_by_source)[:max_articles_per_day]
+
+
+def _interleave(lists):
+    """
+    Alterna gli articoli delle varie fonti (uno per fonte a rotazione) invece
+    di concatenarli: altrimenti una fonte molto prolifica in cima all'elenco
+    (es. Hacker News) riempirebbe da sola il limite giornaliero e le fonti
+    successive non comparirebbero mai.
+    """
+    result = []
+    for i in range(max((len(l) for l in lists), default=0)):
+        for l in lists:
+            if i < len(l):
+                result.append(l[i])
+    return result
 
 
 def _get_published_date(entry):

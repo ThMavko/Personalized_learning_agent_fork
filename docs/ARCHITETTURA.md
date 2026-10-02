@@ -1,11 +1,12 @@
 # Come funziona questo progetto — spiegazione semplice
 
 ## L'idea in una frase
-Ogni giorno ricevi un'email con 8 sezioni di studio personalizzate. Il
+Dal lunedì al venerdì ricevi un'email con un PDF di studio (6 sezioni di
+percorso più le News); il sabato arriva il resoconto settimanale. Il
 sistema si "ricorda" dove sei arrivato in ognuna, e impara dalle tue
 risposte via email per adattare il percorso nel tempo.
 
-## Le 8 sezioni
+## Le sezioni
 
 1. **Science** — fino a 3 argomenti scientifici insieme, ognuno con il suo
    ritmo (5 giorni = intro breve, 10 = intro completa, 20 = rassegna media).
@@ -20,7 +21,9 @@ risposte via email per adattare il percorso nel tempo.
 7. **Feedback** — una sezione fissa che ti ricorda: rispondi a questa email
    per cambiare argomenti, alzare/abbassare la difficoltà, registrare le tue
    risposte agli esercizi, o correggere il percorso.
-8. **News** — il vecchio riassunto RSS (tecnologia/attualità), tenuto in coda.
+8. **News** — riassunto di feed RSS (tecnologia, economia, fisica, tennis). Il
+   limite giornaliero di articoli è ripartito a rotazione tra le fonti, così
+   nessuna fonte molto prolifica occupa tutto lo spazio.
 
 ## Il pezzo chiave: `data/curriculum_state.json`
 
@@ -70,10 +73,11 @@ percorsi continui e non si fermano mai da soli.
 
 ```
 src/
-├── llm.py                 ← unico punto che parla con Gemini/Ollama
+├── llm.py                 ← unico punto che parla con Gemini/Ollama (con retry: 3 tentativi)
 ├── state.py                ← legge/scrive data/curriculum_state.json
 ├── fetch.py, summarize.py  ← sezione News (RSS), invariati da prima
-├── compose.py               ← assembla l'email con le 8 sezioni
+├── compose.py               ← aggiorna il log settimanale (data/weekly_log.json)
+├── daily_report.py          ← PDF giornaliero
 ├── send_email.py            ← invio via Gmail SMTP
 ├── weekly_report.py          ← genera il resoconto settimanale scaricabile
 ├── feedback.py               ← legge/interpreta/applica le tue risposte email
@@ -85,12 +89,19 @@ src/
 │   ├── coding.py
 │   └── poker.py             ← un modulo per sezione, ognuno "sa" solo la sua logica
 └── main.py                    ← orchestra tutto, in ordine
+
+tests/                       ← pytest, senza rete né chiavi (AI e RSS simulati)
 ```
 
 ## Cosa resta gratuito
 Tutto come prima: GitHub Actions (repo pubblico), Gemini tier gratuito,
 Gmail per invio E ora anche per lettura (IMAP è incluso, nessun costo
 aggiuntivo, nessun nuovo secret da configurare).
+
+## Errori temporanei di Gemini
+Una chiamata fallita (rate limit, timeout) viene ritentata fino a 3 volte
+con pause di 5 e 15 secondi. Solo se fallisce anche l'ultima, la sezione
+viene saltata e il percorso non avanza: sarà riprovata il giorno dopo.
 
 ## Se un giorno Gemini smette di funzionare
 Il modello è definito in UN SOLO punto: `src/llm.py`, variabile

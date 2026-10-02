@@ -11,7 +11,19 @@ sources:
     url: "https://www.ilsole24ore.com/rss/tecnologia.xml"
   - name: "Hacker News (top stories)"
     url: "https://hnrss.org/frontpage"
+  # Fisica
+  - name: "Phys.org - Physics"
+    url: "https://phys.org/rss-feed/physics-news/"
+  - name: "Physics World"
+    url: "https://physicsworld.com/feed/"
+  - name: "Quanta Magazine"
+    url: "https://www.quantamagazine.org/feed/"
+  # Tennis
+  - name: "ANSA - Tennis"
+    url: "https://www.ansa.it/sito/notizie/sport/tennis/tennis_rss.xml"
+  - name: "BBC Sport - Tennis"
+    url: "https://feeds.bbci.co.uk/sport/tennis/rss.xml"
 
 settings:
-  weekly_report_day: "Sunday"
+  weekly_report_day: "Saturday"
   max_articles_per_day: 20

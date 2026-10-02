@@ -1,9 +1,9 @@
 # Personal Tutor Newsletter
 
-Agente automatico e gratuito che ogni giorno ti manda un'email con 8 sezioni
-di studio personalizzate (Science, Reading, Philosophy, German, Coding,
-Poker theory, Feedback, News), si ricorda a che punto sei arrivato, e impara
-dalle tue risposte via email.
+Agente automatico e gratuito che dal lunedì al venerdì ti manda via email un
+PDF con le sezioni di studio personalizzate (Science, Reading, Philosophy,
+German, Coding, Poker theory, News), il sabato un resoconto settimanale, si
+ricorda a che punto sei arrivato, e impara dalle tue risposte via email.
 
 Per capire come funziona nel dettaglio: leggi [`docs/ARCHITETTURA.md`](docs/ARCHITETTURA.md).
 
@@ -58,21 +58,32 @@ capisce bene:
 - "Il libro attuale non mi convince, passiamo a [nuovo libro]"
 - "Alza un po' la difficoltà degli esercizi Python"
 - "Il mio tedesco è più avanti di A1, direi A2"
+- "Quando finisce l'argomento sulle architetture AI, sostituiscilo con: meccanica quantistica, ritmo completo"
 
 Le modifiche applicate compaiono anche nel resoconto settimanale, così puoi
 sempre verificare cosa ha capito il sistema.
 
 ## Struttura del progetto
 ```
-config/sources.yaml       ← fonti RSS per la sezione News
+config/sources.yaml       ← fonti RSS per la sezione News (tecnologia, economia, fisica, tennis)
 data/curriculum_state.json ← stato del tuo percorso (si aggiorna da solo)
 data/weekly_log.json       ← accumulo dei contenuti della settimana
 reports/                    ← resoconti settimanali scaricabili
 src/                         ← codice Python (vedi docs/ARCHITETTURA.md)
-.github/workflows/            ← automazione GitHub Actions
+tests/                        ← test automatici (pytest)
+.github/workflows/            ← newsletter.yml (invio) e tests.yml (test)
 ```
 
-## Test in locale (facoltativo)
+## Test automatici
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+Non servono chiavi né rete: l'AI e le fonti RSS vengono simulate. Gli stessi
+test girano su GitHub Actions (`tests.yml`) a ogni push che tocca codice o
+configurazione; non modificano mai stato, log o report.
+
+## Esecuzione in locale (facoltativo)
 ```bash
 pip install -r requirements.txt
 cp .env.example .env   # poi compila .env con le tue chiavi
